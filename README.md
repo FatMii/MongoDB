@@ -4,8 +4,11 @@ MongoDB learning
 查看数据库
 show dbs
 
-使用数据库
+创建/使用数据库
 use test
+
+创建集合
+db.createCollection('test_table')
 
 show collections
 
