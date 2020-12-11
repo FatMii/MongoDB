@@ -44,9 +44,79 @@ db.user.distinct('name')
 
 ```
 
+## 查询数据
+
 查找age =22的记录
+
 db.user.find({age:22})
 
 查找age > 22的记录
 
+ db.test_table.find({age:{$gt:22}})
+
 查找age < 22 的记录
+
+ db.test_table.find({age:{$lt:22}})
+
+查找age ≥ 22的记录
+
+ db.test_table.find({age:{$gte:22}})
+
+查找age ≤ 22 的记录
+
+ db.test_table.find({age:{$lte:22}})
+
+查找age ≥ 22 并且 age ≤ 22 的记录
+
+ db.test_table.find({age:{$gte:22,$lte:100}})
+
+查找name中带有mongo的数据
+
+db.test_table.find({name:/mongo/})
+
+查找name中以mongo开头的数据
+
+db.test_table.find({name:/^mongo/})
+
+查询指定列name,age的数据
+db.test_table.find({},{name:1,age:1})
+
+排序 1:升序 -1降序
+db.test_table.find().sort({age:-1})
+
+查询name等于张三,age=22的数据
+db.test_table.find({name:"张三",age:22})
+
+查询前5条数据
+db.user.find().limit(5)
+
+查询10条以后的数据
+db.user.find().skip(10)
+
+查询在5到10之间的数据
+db.user.find().limit(10).skip(5)
+
+得到查询结果数量
+db.user.find().count()
+
+or与查询
+db.user.find({$or:[{age:22},{age:25}]})
+
+查询第一条数据
+db.user.findOne() 相当于db.user.find().limit(1)
+
+
+## 修改数据
+
+db.user.update({name:"owllai"},{$set:{age:100}})
+
+批量修改
+db.user.update({name:"owllai"},{$set:{age:100}},{multi:true})
+
+## 删除数据
+
+db.user.remove({name:"owllai"})
+
+只删除一条数据
+
+db.user.remove({name:"owllai"},{justOne:true})
