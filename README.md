@@ -280,3 +280,8 @@ db.dropUser("testuser")
 ```sql
 db.updateUser("admin":{pwd})
 ```
+
+验证用户
+```sql
+db.auth("admin","password")
+```
