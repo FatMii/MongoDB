@@ -285,3 +285,156 @@ db.updateUser("admin":{pwd})
 ```sql
 db.auth("admin","password")
 ```
+
+## 聚合管道
+
+使用聚合管道可以对集合中的文档进行变换和组合
+
+MongoDB 中聚合(aggregate)主要用于处理数据(诸如统计平均值，求和等)，并返回计算后的数据结果。
+
+集合中的数据如下：
+
+```
+
+{
+   _id: ObjectId(7df78ad8902c)
+   title: 'MongoDB Overview', 
+   description: 'MongoDB is no sql database',
+   by_user: 'runoob.com',
+   url: 'http://www.runoob.com',
+   tags: ['mongodb', 'database', 'NoSQL'],
+   likes: 100
+},
+{
+   _id: ObjectId(7df78ad8902d)
+   title: 'NoSQL Overview', 
+   description: 'No sql database is very fast',
+   by_user: 'runoob.com',
+   url: 'http://www.runoob.com',
+   tags: ['mongodb', 'database', 'NoSQL'],
+   likes: 10
+},
+{
+   _id: ObjectId(7df78ad8902e)
+   title: 'Neo4j Overview', 
+   description: 'Neo4j is no sql database',
+   by_user: 'Neo4j',
+   url: 'http://www.neo4j.com',
+   tags: ['neo4j', 'database', 'NoSQL'],
+   likes: 750
+},
+
+```
+
+现在我们通过以上集合计算每个作者所写的文章数，使用aggregate()计算结果如下：
+
+```
+> db.mycol.aggregate([{$group : {_id : "$by_user", num_tutorial : {$sum : 1}}}])
+{
+   "result" : [
+      {
+         "_id" : "runoob.com",
+         "num_tutorial" : 2
+      },
+      {
+         "_id" : "Neo4j",
+         "num_tutorial" : 1
+      }
+   ],
+   "ok" : 1
+}
+
+```
+
+
+
+下表展示了一些聚合的表达式:
+
+| 表达式 | 	描述	|             实例  | 
+| -------- | -------- |-------- |
+| $sum | 	计算总和| 	db.mycol.aggregate([{$group : {_id : "$by_user",  num_tutorial : {$sum : "$likes"}}}]) |
+|$avg	|计算平均值|	db.mycol.aggregate([{$group : {_id : "$by_user", num_tutorial : {$avg : "$likes"}}}])|
+|$min|	获取集合中所有文档对应值得最小值。|	db.mycol.aggregate([{$group : {_id : "$by_user", num_tutorial : {$min : "$likes"}}}])|
+|$max|	获取集合中所有文档对应值得最大值。|	db.mycol.aggregate([{$group : {_id : "$by_user", num_tutorial : {$max : "$likes"}}}])|
+|$push|	在结果文档中插入值到一个数组中。|	db.mycol.aggregate([{$group : {_id : "$by_user", url : {$push: "$url"}}}])|
+|$addToSet|	在结果文档中插入值到一个数组中，但不创建副本。|	db.mycol.aggregate([{$group : {_id : "$by_user", url : {$addToSet : "$url"}}}])|
+|$first	|根据资源文档的排序获取第一个文档数据。|	db.mycol.aggregate([{$group : {_id : "$by_user", first_url : {$first : "$url"}}}])|
+|$last|	根据资源文档的排序获取最后一个文档数据|	db.mycol.aggregate([{$group : {_id : "$by_user", last_url : {$last : "$url"}}}])|
+
+
+```
+$project：修改输入文档的结构。可以用来重命名、增加或删除域，也可以用于创建计算结果以及嵌套文档。
+$match：用于过滤数据，只输出符合条件的文档。$match使用MongoDB的标准查询操作。
+$limit：用来限制MongoDB聚合管道返回的文档数。
+$skip：在聚合管道中跳过指定数量的文档，并返回余下的文档。
+$unwind：将文档中的某一个数组类型字段拆分成多条，每条包含数组中的一个值。
+$group：将集合中的文档分组，可用于统计结果。
+$sort：将输入文档排序后输出。
+$geoNear：输出接近某一地理位置的有序文档。
+$lookup: 多表关联（3.2版本新增）
+```
+
+### 数据准备
+
+```
+> db.order.find()
+{ "_id" : ObjectId("5fd62f7b4b76fc8004cf77f4"), "order_id" : "1", "uid" : 10, "trade_no" : 111, "all_price" : 100, "all_num" : 2 }
+{ "_id" : ObjectId("5fd62f914b76fc8004cf77f5"), "order_id" : "2", "uid" : 7, "trade_no" : 222, "all_price" : 90, "all_num" : 2 }
+{ "_id" : ObjectId("5fd62fa34b76fc8004cf77f6"), "order_id" : "3", "uid" : 9, "trade_no" : 333, "all_price" : 90, "all_num" : 6 }
+
+> db.order_item.find()
+{ "_id" : ObjectId("5fd62fe84b76fc8004cf77f7"), "order_id" : 1, "title" : "kuangquanshui", "price" : 50, "num" : 1 }
+{ "_id" : ObjectId("5fd62ff94b76fc8004cf77f8"), "order_id" : 1, "title" : "瓜子", "price" : 10, "num" : 5 }
+{ "_id" : ObjectId("5fd630684b76fc8004cf77f9"), "order_id" : 2, "title" : "牛娜", "price" : 10, "num" : 5 }
+{ "_id" : ObjectId("5fd630764b76fc8004cf77fa"), "order_id" : 2, "title" : "香烟", "price" : 10, "num" : 4 }
+{ "_id" : ObjectId("5fd630a84b76fc8004cf77fb"), "order_id" : 3, "title" : "毛巾", "price" : 10, "num" : 5 }
+{ "_id" : ObjectId("5fd630b34b76fc8004cf77fc"), "order_id" : 3, "title" : "键盘", "price" : 40, "num" : 1 }
+```
+
+```
+$project：
+> db.order.aggregate([{$project:{order_id:1,all_price:1} }])
+{ "_id" : ObjectId("5fd62f7b4b76fc8004cf77f4"), "order_id" : "1", "all_price" : 100 }
+{ "_id" : ObjectId("5fd62f914b76fc8004cf77f5"), "order_id" : "2", "all_price" : 90 }
+{ "_id" : ObjectId("5fd62fa34b76fc8004cf77f6"), "order_id" : "3", "all_price" : 90 }
+```
+
+```
+$match：
+> db.order.aggregate([{$project:{order_id:1,all_price:1}},{$match:{all_price:{$gte:90}}  }])
+{ "_id" : ObjectId("5fd62f7b4b76fc8004cf77f4"), "order_id" : "1", "all_price" : 100 }
+{ "_id" : ObjectId("5fd62f914b76fc8004cf77f5"), "order_id" : "2", "all_price" : 90 }
+{ "_id" : ObjectId("5fd62fa34b76fc8004cf77f6"), "order_id" : "3", "all_price" : 90 }
+> db.order.aggregate([{$project:{order_id:1,all_price:1}},{$match:{all_price:{$gte:95}}  }])
+{ "_id" : ObjectId("5fd62f7b4b76fc8004cf77f4"), "order_id" : "1", "all_price" : 100 }
+```
+
+```
+$group
+
+> db.order.aggregate([ {$group:{_id:"$order_id",totle:{$sum: "$num"} } } ])
+{ "_id" : "2", "totle" : 0 }
+{ "_id" : "1", "totle" : 0 }
+{ "_id" : "3", "totle" : 0 }
+
+> db.order_item.aggregate([ {$group:{_id:"$order_id",totle:{$sum: "$price"} } } ])
+{ "_id" : 1, "totle" : 60 }
+{ "_id" : 3, "totle" : 50 }
+{ "_id" : 2, "totle" : 20 }
+```
+
+```
+$lookup 表关联
+
+db.order.aggregate(
+    [ 
+        {
+            $lookup:{
+                from:"order_item", 
+                localField:"order_id",
+                foreignField:"order_id",
+                as:"items"
+                }
+                } 
+ ])
+```
