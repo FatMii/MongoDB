@@ -437,4 +437,8 @@ db.order.aggregate(
                 }
                 } 
  ])
+
+ { "_id" : ObjectId("5fd62f7b4b76fc8004cf77f4"), "order_id" : "1", "uid" : 10, "trade_no" : 111, "all_price" : 100, "all_num" : 2, "items" : [ ] }
+{ "_id" : ObjectId("5fd62f914b76fc8004cf77f5"), "order_id" : "2", "uid" : 7, "trade_no" : 222, "all_price" : 90, "all_num" : 2, "items" : [ ] }
+{ "_id" : ObjectId("5fd62fa34b76fc8004cf77f6"), "order_id" : "3", "uid" : 9, "trade_no" : 333, "all_price" : 90, "all_num" : 6, "items" : [ ] }
 ```
